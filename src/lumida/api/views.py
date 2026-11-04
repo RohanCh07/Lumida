@@ -1,9 +1,10 @@
 """Reading the metadata store for the API: rows to response shapes. No writes here."""
 
 import uuid
-from collections import Counter
+from collections import Counter, defaultdict
+from datetime import timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from lumida.api.schemas import (
@@ -11,17 +12,22 @@ from lumida.api.schemas import (
     FindingDetail,
     FindingOut,
     HealthOut,
+    HealthPoint,
+    HistoryOut,
     RelationshipOut,
+    RowCountPoint,
     RuleOut,
     RunOut,
     ScoreOut,
     SourceOut,
+    TableHistory,
     TableScoreOut,
 )
 from lumida.graph.models import (
     ACTIVE_FINDING_STATUSES,
     Asset,
     AssetColumn,
+    AssetProfile,
     DataSource,
     Finding,
     FindingEvent,
@@ -30,6 +36,7 @@ from lumida.graph.models import (
     IngestionRun,
     Relationship,
     Rule,
+    utcnow,
 )
 from lumida.ingestion.sources import scan_settings
 
@@ -81,10 +88,15 @@ def recent_runs(session: Session, source: DataSource, limit: int) -> list[Ingest
 
 def source_out(session: Session, source: DataSource) -> SourceOut:
     settings = scan_settings(source)
-    severities = session.scalars(
-        select(Finding.severity).where(
+    active = session.execute(
+        select(Finding.severity, Finding.category).where(
             Finding.data_source_id == source.id, Finding.status.in_(ACTIVE_FINDING_STATUSES)
         )
+    ).all()
+    tables = session.scalar(
+        select(func.count())
+        .select_from(Asset)
+        .where(Asset.data_source_id == source.id, Asset.deleted_at.is_(None))
     )
     latest = _source_snapshots(session, source, 1)
     runs = recent_runs(session, source, 1)
@@ -100,7 +112,9 @@ def source_out(session: Session, source: DataSource) -> SourceOut:
         disabled=source.disabled_at is not None,
         baseline_done=source.baseline_completed_at is not None,
         health_score=latest[0].score if latest else None,
-        open_findings=dict(sorted(Counter(s.value for s in severities).items())),
+        open_findings=dict(sorted(Counter(s.value for s, _ in active).items())),
+        open_by_category=dict(sorted(Counter(c.value for _, c in active).items())),
+        tables=tables or 0,
         last_run=run_out(runs[0]) if runs else None,
     )
 
@@ -147,6 +161,54 @@ def health_out(session: Session, source: DataSource) -> HealthOut:
         schemas=dict(sorted(schemas.items())),
         tables=sorted(tables, key=lambda t: (t.score, t.table)),
     )
+
+
+def history_out(session: Session, source: DataSource, days: int, tables: int) -> HistoryOut:
+    """Health per run and the row counts of the ``tables`` biggest tables, for the charts.
+    Only what earlier runs stored; nothing is measured here."""
+    since = utcnow() - timedelta(days=days)
+    snapshots = session.scalars(
+        select(HealthSnapshot)
+        .where(
+            HealthSnapshot.data_source_id == source.id,
+            HealthSnapshot.scope == HealthScope.SOURCE,
+            HealthSnapshot.computed_at >= since,
+        )
+        .order_by(HealthSnapshot.computed_at)
+    )
+    health = [
+        HealthPoint(at=s.computed_at, score=s.score,
+                    open_findings={k: int(v) for k, v in s.open_findings.items()})
+        for s in snapshots
+    ]  # fmt: skip
+    profiles = session.execute(
+        select(Asset.schema_name, Asset.name, AssetProfile)
+        .join(Asset, Asset.asset_key == AssetProfile.asset_key)
+        .where(
+            Asset.data_source_id == source.id,
+            Asset.deleted_at.is_(None),
+            AssetProfile.measured_at >= since,
+        )
+        .order_by(AssetProfile.measured_at)
+    ).all()
+    series: dict[str, list[AssetProfile]] = defaultdict(list)
+    for schema, name, profile in profiles:
+        series[f"{schema}.{name}"].append(profile)
+    found = [
+        TableHistory(
+            table=table,
+            rows=points[-1].row_count,
+            last_modified_at=points[-1].last_modified_at,
+            points=[
+                RowCountPoint(at=p.measured_at, rows=p.row_count)
+                for p in points
+                if p.row_count is not None
+            ],
+        )
+        for table, points in series.items()
+    ]
+    found.sort(key=lambda t: (-(t.rows or 0), t.table))
+    return HistoryOut(days=days, health=health, tables=found[:tables])
 
 
 def _score(s: HealthSnapshot) -> ScoreOut:

@@ -60,6 +60,7 @@ def test_the_endpoints(client: TestClient) -> None:
         ("GET", "/api/v1/sources/{name}"),
         ("GET", "/api/v1/sources/{name}/runs"),
         ("GET", "/api/v1/sources/{name}/health"),
+        ("GET", "/api/v1/sources/{name}/history"),
         ("GET", "/api/v1/sources/{name}/findings"),
         ("GET", "/api/v1/findings/{finding_id}"),
         ("POST", "/api/v1/findings/{finding_id}/review"),

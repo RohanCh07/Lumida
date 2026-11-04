@@ -33,6 +33,8 @@ class SourceOut(BaseModel):
     baseline_done: bool  # False until the first ("quiet baseline") run finished
     health_score: float | None
     open_findings: dict[str, int]  # severity -> count, open + confirmed
+    open_by_category: dict[str, int] = Field(default_factory=dict)  # category -> count
+    tables: int = 0  # tables and views Lumida currently sees
     last_run: RunOut | None
 
 
@@ -52,6 +54,32 @@ class HealthOut(BaseModel):
     previous_score: float | None
     schemas: dict[str, ScoreOut]
     tables: list[TableScoreOut]  # worst first
+
+
+class HealthPoint(BaseModel):
+    at: datetime
+    score: float
+    open_findings: dict[str, int]  # severity -> count at that run
+
+
+class RowCountPoint(BaseModel):
+    at: datetime
+    rows: int
+
+
+class TableHistory(BaseModel):
+    table: str  # schema.table
+    rows: int | None  # latest
+    last_modified_at: datetime | None  # when its data last changed, if the database says
+    points: list[RowCountPoint]  # oldest first
+
+
+class HistoryOut(BaseModel):
+    """What the charts draw: health per run and row counts per table, over ``days``."""
+
+    days: int
+    health: list[HealthPoint]  # oldest first, one per run
+    tables: list[TableHistory]  # the biggest tables first
 
 
 class FindingOut(BaseModel):

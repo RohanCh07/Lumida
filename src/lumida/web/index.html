@@ -3,26 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="no-referrer">
   <title>Lumida</title>
+  <meta name="robots" content="noindex">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="app.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="top" id="top" hidden>
-    <a class="brand" href="#/">
-      <img src="mark.svg" alt="" width="26" height="26">
-      <span>lumida</span>
-    </a>
-    <nav class="nav" id="nav" aria-label="Main"></nav>
-    <div class="who" id="who"></div>
-  </header>
-  <main id="main" class="page" tabindex="-1">
-    <p class="muted">Loading…</p>
-  </main>
+  <div class="app" id="app">
+    <aside class="side" id="side" hidden>
+      <div class="side__head">
+        <a class="brand" href="#/">
+          <img src="mark.svg" alt="" width="24" height="24">
+          <span>lumida</span>
+        </a>
+        <span class="side__ver" id="ver"></span>
+        <button class="side__toggle" id="menu" type="button" aria-expanded="false" aria-controls="side-body">Menu</button>
+      </div>
+      <div class="side__body" id="side-body">
+        <div id="switcher"></div>
+        <div class="side__label">Monitor</div>
+        <nav class="side__nav" id="nav-monitor" aria-label="Monitor"></nav>
+        <div class="side__spacer"></div>
+        <div class="side__label">Workspace</div>
+        <nav class="side__nav" id="nav-work" aria-label="Workspace"></nav>
+        <div class="side__foot" id="side-foot"></div>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="top" id="top" hidden>
+        <nav class="top__crumb" id="crumb" aria-label="Breadcrumb"></nav>
+        <form class="top__search" id="search" role="search"></form>
+        <div class="top__actions" id="actions"></div>
+        <div class="top__who" id="who"></div>
+      </header>
+      <main id="main" class="page" tabindex="-1">
+        <p class="muted">Loading…</p>
+      </main>
+    </div>
+  </div>
   <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
-  <noscript><p class="page">Lumida's web app needs JavaScript.</p></noscript>
 </body>
 </html>

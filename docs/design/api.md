@@ -27,10 +27,11 @@ Logins, people and the audit log: [`accounts.md`](accounts.md).
 
 | Method + path | What |
 |---|---|
-| `GET /sources` | every database: schedule, last run, health score, open findings by severity |
+| `GET /sources` | every database: schedule, last run, health score, open findings by severity and by kind, tables watched |
 | `GET /sources/{name}` | one database |
 | `GET /sources/{name}/runs?limit=` | recent nightly runs (status, times, counts, error) |
 | `GET /sources/{name}/health` | score for the source, each schema and each table (worst first), plus the previous score |
+| `GET /sources/{name}/history?days=30&tables=9` | for the charts (2026-11-04): the source's health and open problems by severity at each run, and the row counts of the biggest tables per run, oldest first. Only what runs stored; nothing is measured on request |
 | `GET /sources/{name}/findings?status=&severity=&category=&limit=&offset=` | findings, most severe first. `status`: active (default: open + confirmed), open, confirmed, rejected, resolved, all |
 | `GET /findings/{id}` | one finding: description, evidence, AI explanation, review history |
 | `POST /findings/{id}/review` | `{action: confirm/reject/resolve/reopen, note}` |

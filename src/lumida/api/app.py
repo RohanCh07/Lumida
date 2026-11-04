@@ -104,6 +104,9 @@ async def _security_headers(
         # never inside another site's frame.
         response.headers.setdefault("Content-Security-Policy", WEB_CSP)
         response.headers.setdefault("X-Frame-Options", "DENY")
+        # Ask the browser to check for a newer file each time (cheap: an unchanged file
+        # answers 304), so after an upgrade it never mixes a new page with an old script.
+        response.headers.setdefault("Cache-Control", "no-cache")
     return response
 
 

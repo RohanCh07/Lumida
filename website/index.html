@@ -209,6 +209,67 @@ check: duplicate_values   evidence: counted inside the database</code></pre>
       </div>
     </section>
 
+    <!-- The web app ------------------------------------------------------------------------- -->
+    <section class="section section--line" id="app">
+      <div class="wrap">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">In your browser</p>
+            <h2 class="reveal">Every database on one screen.</h2>
+          </div>
+          <p class="section__aside">Health per database, schema and table, how it moved night by night, and what waits for a person. Served by Lumida itself, from your own server.</p>
+        </div>
+        <figure class="shot reveal" aria-label="Example of the Lumida web app, with illustrative numbers">
+          <div class="shot__bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="shot__url">127.0.0.1:8000 · Overview</span><span class="shot__lock">runs on your machines</span></div>
+          <div class="shot__body">
+            <aside class="shot__side" aria-hidden="true">
+              <span class="shot__brand"><img src="assets/mark.svg" alt="" width="16" height="16">lumida</span>
+              <span class="on">Overview</span><span>Databases</span><span>Problems</span><span>Rules</span><span>Relationships</span><span>Questions</span><span>Runs</span>
+            </aside>
+            <div class="shot__main">
+              <div class="shot__kpis">
+                <div class="shot__kpi shot__kpi--glow"><span class="label">Overall health</span><b>82<small> / 100</small></b><span class="shot__note">average of 4 databases</span></div>
+                <div class="shot__kpi"><span class="label">Open problems</span><b>27</b><span class="shot__sev"><i class="s-crit"></i><i class="s-high"></i><i class="s-med"></i><i class="s-low"></i></span></div>
+                <div class="shot__kpi"><span class="label">Awaiting review</span><b>9</b><span class="shot__note">5 rules · 4 links proposed</span></div>
+                <div class="shot__kpi"><span class="label">Runs today</span><b>3<small> / 4</small></b><span class="shot__note shot__note--bad">warehouse failed</span></div>
+              </div>
+              <div class="shot__grid">
+                <div class="shot__panel">
+                  <span class="shot__title">Health by database</span>
+                  <div class="shot__bars">
+                    <div><span>shop <em>postgresql</em></span><b>72</b><i class="bar w72 warm"></i></div>
+                    <div><span>billing <em>mysql</em></span><b>91</b><i class="bar w91 good"></i></div>
+                    <div><span>warehouse <em>snowflake</em></span><b>58</b><i class="bar w58 bad"></i></div>
+                    <div><span>crm <em>sql server</em></span><b>88</b><i class="bar w88 good"></i></div>
+                  </div>
+                </div>
+                <div class="shot__panel">
+                  <span class="shot__title">Health over time</span>
+                  <svg class="shot__chart" viewBox="0 0 320 120" role="img" aria-label="Health of four databases over 30 nights">
+                    <g class="grid"><line x1="0" x2="320" y1="20" y2="20"/><line x1="0" x2="320" y1="60" y2="60"/><line x1="0" x2="320" y1="100" y2="100"/></g>
+                    <path class="l1" d="M0,30 L40,28 L80,29 L120,27 L160,28 L200,26 L240,27 L280,25 L320,24"/>
+                    <path class="l2" d="M0,40 L40,41 L80,38 L120,39 L160,37 L200,38 L240,36 L280,35 L320,34"/>
+                    <path class="l3" d="M0,46 L40,47 L80,45 L120,48 L160,50 L200,55 L240,52 L280,51 L320,52"/>
+                    <path class="l4" d="M0,58 L40,59 L80,60 L120,61 L160,63 L200,70 L240,80 L280,90 L320,92"/>
+                    <circle class="d4" cx="320" cy="92" r="3"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="shot__panel">
+                <span class="shot__title">Latest problems</span>
+                <ul class="shot__feed">
+                  <li><span class="sev sev--high">high</span><span>312 orders point to customers that don't exist</span><code>shop · orders.customer_id</code></li>
+                  <li><span class="sev sev--high">high</span><span>Empty emails jumped from 0.4% to 18.2%</span><code>warehouse · customers.email</code></li>
+                  <li><span class="sev sev--medium">medium</span><span>3 rows 250× the usual quantity</span><code>shop · order_items.quantity</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <figcaption class="shot__cap">Illustrative numbers. Your copy shows your own databases, and only to the people you add.</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- It asks ----------------------------------------------------------------------------- -->
     <section class="section section--line">
       <div class="wrap split split--reverse">

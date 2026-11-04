@@ -33,6 +33,8 @@ Every number on the page comes from the test lab and says so (15/15 relationship
 - integrations that aren't built (only Slack is)
 - demo, docs or pricing links before those pages exist
 
+The *Every database on one screen* section (`#app`) is a picture of the web app built in HTML and CSS, with **illustrative** numbers; its caption says so. Keep it close to the real app when the app changes.
+
 Fonts load from Google Fonts. To load nothing from other sites, put Geist and JetBrains Mono (both under the open font licence) in `assets/fonts/` and replace the link with `@font-face` rules.
 
 ## Brand

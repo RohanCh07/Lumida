@@ -292,7 +292,9 @@ def test_the_web_app_is_served_with_a_strict_policy(client: TestClient) -> None:
     assert "script-src 'self'" in policy
     assert "frame-ancestors 'none'" in policy
     assert page.headers["x-frame-options"] == "DENY"
-    for asset in ("app.js", "app.css", "mark.svg", "favicon.svg"):
-        assert client.get(f"/{asset}").status_code == 200, asset
+    for asset in ("app.js", "charts.js", "app.css", "mark.svg", "favicon.svg"):
+        served = client.get(f"/{asset}")
+        assert served.status_code == 200, asset
+        assert served.headers["cache-control"] == "no-cache", asset  # never a stale script
     assert client.get("/api/docs").status_code == 200  # the API docs keep their own policy
     assert "content-security-policy" not in client.get("/api/docs").headers

@@ -106,6 +106,18 @@ def test_sources_runs_and_health(api: TestClient) -> None:
     assert scores == sorted(scores)
     assert health["tables"][0]["table"].count(".") == 1  # schema.table
 
+    history = _ok(api.get("/api/v1/sources/shop/history", params={"tables": 3}))
+    assert history["days"] == 30
+    assert [p["score"] for p in history["health"]] == [shop["health_score"]]  # one run
+    counted = history["health"][0]["open_findings"]
+    assert sum(counted.values()) == sum(shop["open_findings"].values())
+    assert 0 < len(history["tables"]) <= 3
+    sizes = [t["rows"] or 0 for t in history["tables"]]
+    assert sizes == sorted(sizes, reverse=True)  # biggest first
+    assert history["tables"][0]["points"][0]["rows"] == history["tables"][0]["rows"]
+    assert sum(shop["open_by_category"].values()) == sum(shop["open_findings"].values())
+    assert shop["tables"] > 0
+
     assert _ok(api.get("/api/v1/sources/nope"), 404) == {
         "detail": "no data source named 'nope'; add it with `lumida source add`"
     }

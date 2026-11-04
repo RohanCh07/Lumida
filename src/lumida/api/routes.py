@@ -22,6 +22,7 @@ from lumida.api.schemas import (
     FindingPage,
     FindingReview,
     HealthOut,
+    HistoryOut,
     NewRule,
     QuestionOut,
     RelationshipOut,
@@ -35,6 +36,7 @@ from lumida.api.views import (
     finding_detail,
     finding_out,
     health_out,
+    history_out,
     owned,
     recent_runs,
     relationship_out,
@@ -109,6 +111,18 @@ def runs(
 @router.get("/sources/{name}/health")
 def health(name: str, session: DB, me: Viewer) -> HealthOut:
     return health_out(session, get_source(session, name, me.tenant_id))
+
+
+@router.get("/sources/{name}/history")
+def history(
+    name: str,
+    session: DB,
+    me: Viewer,
+    days: Annotated[int, Query(ge=1, le=365)] = 30,
+    tables: Annotated[int, Query(ge=0, le=100)] = 9,
+) -> HistoryOut:
+    """For the charts: health per run, and row counts of the biggest tables, over ``days``."""
+    return history_out(session, get_source(session, name, me.tenant_id), days, tables)
 
 
 # --- findings ------------------------------------------------------------------------------

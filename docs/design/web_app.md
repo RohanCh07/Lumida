@@ -51,8 +51,25 @@ People work with Lumida in a browser instead of a terminal. They see how healthy
 
 **Since 4.6:** the website's "Luminous Void" look and the aperture logo; a *Settings* tab for admins (schedule, schemas, pause, remove); *Download as YAML* on the Rules tab. See [`rules_as_code.md`](rules_as_code.md).
 
+## 4b. The redesign with charts (2026-11-04)
+Rebuilt from the user's Stitch screens (Overview, Database detail, Problems, Problem detail, Add a database), in the same plain HTML/CSS/JS and under the same strict policy.
+- **Layout:** a left sidebar (database switcher; Overview, Databases, Problems, Rules, Relationships, Questions, Runs; People, Audit log, My account) and a top bar (breadcrumb, search, Run now, account menu). On phones the sidebar folds into a Menu button.
+- **Charts** (`web/charts.js`): small SVG drawn with `createElementNS`, no library, nothing loaded from elsewhere; hover hints are `<title>` elements. Lines, stacked columns, stacked areas, sparklines, a score ring, and the map of a table's links.
+- **New endpoint** `GET /sources/{name}/history` feeds them (health and open problems per run, row counts per table); `GET /sources` gained counts by kind and the number of tables.
+
+| Address | What |
+|---|---|
+| `#/` | **Overview**: overall health (with its trend), open problems (by severity, change since the last run), awaiting review (proposed rules and links), runs today; health by database; health over time (one line per database); open problems by kind per database; worst tables; latest problems |
+| `#/databases` (`/add`) | every database as a table (kind, health, tables, open problems, schedule, last run); **Add a database** opens a side drawer (kind as a segmented control, connection by .env name, read-only login script, Test connection, run right after) |
+| `#/problems` | **all databases**: counts by severity (click to filter), open problems over time (stacked by severity), status tabs, filters (database, severity, kind, text), paged table, **bulk confirm/reject** |
+| `#/s/<name>` | header (kind, connection name, last run, health ring, Run now, Propose rules); tabs **Overview** (health per run, open problems per run, row counts of the 9 biggest tables with sparklines, freshness, health by schema), Problems, Rules, Relationships, Questions, Runs, Settings |
+| `#/f/<id>` | the review bar on top; evidence as numbers, SQL (with Copy) and row IDs; **what it touches** (the table's links: tables it points to on the left, tables that point to it on the right); AI explanation marked as AI with its confidence; history as a timeline |
+
+- **Row-count sparklines:** the shaded envelope is where each run was expected to land, from the table's usual change per run (mean ± 3 standard deviations, at least 1%: `BAND_SIGMAS`, `BAND_MIN_SHARE` in `charts.js`), so steady growth isn't flagged. It's a picture only; Lumida's volume checks decide what becomes a problem.
+- **Checked by hand** in the browser pane against a throwaway store with the test lab and 7 nightly runs (spread over 7 days): every page, bulk confirm, the drawer, phone width (no sideways scrolling, the Menu works). Fixed along the way: a stray breadcrumb item; every growing table looked "outside the usual range" with a min/max band (replaced by the trend-aware envelope); health charts now start just below the lowest score.
+
 ## 5. Not yet
-- **Relationship map** (a diagram); for now a list. `lumida docs` still writes the Mermaid map.
-- **Adding databases, "run now", AI proposals and explanations from the browser**: they need a job queue (4.5).
-- **Charts of a column's history** (e.g. its null rate over time), and bulk review of many problems at once.
+- **A full relationship map** of a database (today: the links of one table, on a problem's page). `lumida docs` still writes the Mermaid map.
+- **Charts of a column's history** (null rate, distinct values) and column histograms: the data is stored, the endpoint isn't built yet.
+- **Freshness against deadlines**: the panel shows when tables last changed (where the database reports it), not the deadlines people answered.
 - **Notifications in the app**: alerts still go to Slack.
